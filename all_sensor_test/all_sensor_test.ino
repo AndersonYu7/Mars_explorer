@@ -43,14 +43,19 @@ void setup()
 
 int ultra_dis(int trig, int echo)
 {
+  // Clears the trigPin condition
   digitalWrite(trig, LOW);
   delayMicroseconds(2);
+  
+  // Sets the trigPin HIGH (ACTIVE) for 10 microseconds
   digitalWrite(trig, HIGH);
   delayMicroseconds(10);
   digitalWrite(trig, LOW);
-
+  
+  // Reads the echoPin, returns the sound wave travel time in microseconds
   int duration = pulseIn(echo, HIGH);
-
+  
+  // Calculating the distance
   return duration * 0.034 / 2;
 }
 
@@ -81,7 +86,7 @@ void print_fire_vals(fire fire_sensors[], int size)
 
 void loop() 
 {
-  //display ultra sonic distance (front, left, right)
+// Displays the distance on the Serial Monitor
   front_ultra.distance = ultra_dis(front_ultra.trig, front_ultra.echo);
   left_ultra.distance = ultra_dis(left_ultra.trig, left_ultra.echo);
   right_ultra.distance = ultra_dis(right_ultra.trig, right_ultra.echo);
@@ -94,7 +99,7 @@ void loop()
   print_ultra_val(right_ultra);
   Serial.println("");
 
-  //display the flame sensor's values
+//Displays the flame sensor values on the Serial Monitor
   Serial.print("Flame Sensor: ");
   fires[0].val = analogRead(A2);
   fires[1].val = analogRead(A3);
