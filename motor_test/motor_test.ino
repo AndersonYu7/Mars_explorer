@@ -1,9 +1,9 @@
-int Value = 10;
-int Value4;
+int Value = 200;
+int Value4 = 20;
 
 void setup() {
   // put your setup code here, to run once:
-
+  Serial.begin(9600);
 }
 
 //2,4,6,8正轉 / 3,5,7,9反轉                      
@@ -225,4 +225,9 @@ void loop() {
   delay(2000);
   Back();
   delay(2000);
+  Right_Slide();
+  delay(2000);
+  Right();
+  delay(2000);
+  
 }
