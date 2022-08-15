@@ -1,5 +1,5 @@
-int Value = 200;
-int Value4 = 20;
+int Value = 100;
+int Value4 = 50;
 
 void setup() {
   // put your setup code here, to run once:
