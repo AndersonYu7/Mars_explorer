@@ -25,6 +25,11 @@ RAMPS :
                                          orange : 1A
                                          brown  : 1B
 
+            drv8825(35 stepper motor) -> black  : 2B
+                                         green  : 2A
+                                         red    : 1A 
+                                         blue   : 1B
+
 limit switch : no -> signal, c -> gnd
 
 why INPUT_PULLUP : https://blog.csdn.net/xiaoxiaoxiaoali/article/details/104338747
@@ -56,7 +61,7 @@ why INPUT_PULLUP : https://blog.csdn.net/xiaoxiaoxiaoali/article/details/1043387
 #define J6dirPin 48
 #define J6_ENABLE_PIN 62
 
-#define stepPerRevolution 200
+#define stepPerRevolution 400
 void setup() {
   // put your setup code here, to run once:
   pinMode(J1stepPin, OUTPUT);
@@ -108,7 +113,7 @@ void step_fun(const int step_, const int dir, int direction_)
     digitalWrite(step_, LOW);
     delayMicroseconds(1000);
   }
-  delay(1000);
+  //delay(1000);
 }
 
 
