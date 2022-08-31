@@ -46,8 +46,8 @@ step 9 : you can see the screen on the website
 
 #include "camera_pins.h"
 
-const char* ssid = "PARTNERTOUR";
-const char* password = "25076518";
+const char* ssid = "HITRON-50A0";
+const char* password = "250194014437";
 
 void startCameraServer();
 
