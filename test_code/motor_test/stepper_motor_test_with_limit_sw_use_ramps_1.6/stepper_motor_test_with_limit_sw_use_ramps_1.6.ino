@@ -25,7 +25,7 @@ RAMPS :
                                          orange : 1A
                                          brown  : 1B
 
-            drv8825(35 stepper motor) -> black  : 2B
+            drv8825(36 stepper motor) -> black  : 2B
                                          green  : 2A
                                          red    : 1A 
                                          blue   : 1B
