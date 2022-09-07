@@ -42,7 +42,7 @@ why INPUT_PULLUP : https://blog.csdn.net/xiaoxiaoxiaoali/article/details/1043387
 #define J2stepPin 54  //X
 #define J2dirPin 55
 #define J2_ENABLE_PIN 38
-//#define J2limitSwitch
+#define J2limitSwitch 17
 
 #define J3stepPin 60  //Y
 #define J3dirPin 61
@@ -61,7 +61,7 @@ why INPUT_PULLUP : https://blog.csdn.net/xiaoxiaoxiaoali/article/details/1043387
 #define J6dirPin 48
 #define J6_ENABLE_PIN 62
 
-#define stepPerRevolution 400
+#define stepPerRevolution 2000
 void setup() {
   // put your setup code here, to run once:
   pinMode(J1stepPin, OUTPUT);
@@ -73,7 +73,7 @@ void setup() {
   pinMode(J2stepPin, OUTPUT);
   pinMode(J2dirPin, OUTPUT);
   pinMode(J2_ENABLE_PIN, OUTPUT);
-  //pinMode(J2limitSwitch, INPUT_PULLUP);
+  pinMode(J2limitSwitch, INPUT_PULLUP);
   digitalWrite(J2_ENABLE_PIN, LOW);
 
   pinMode(J3stepPin, OUTPUT);
@@ -127,17 +127,16 @@ void step_fun_with_limit_switch(const int step_, const int dir, int direction_, 
     if(!digitalRead(limitswitch)) break;
     
     digitalWrite(step_, HIGH);
-    delayMicroseconds(1000);
+    delayMicroseconds(500);
     digitalWrite(step_, LOW);
-    delayMicroseconds(1000);
+    delayMicroseconds(500);
   }
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
-  step_fun(J2stepPin, J2dirPin, 1);
   step_fun(J3stepPin, J3dirPin, 1);
   step_fun(J4stepPin, J4dirPin, 1);
 
-  while(1) step_fun_with_limit_switch(J1stepPin, J1dirPin, 1, J1limitSwitch);
+  while(1) step_fun_with_limit_switch(J2stepPin, J2dirPin, 1, J2limitSwitch);
 }
