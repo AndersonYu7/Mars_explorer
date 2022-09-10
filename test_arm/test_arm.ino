@@ -41,7 +41,6 @@ bool driveToAngle = false;
 bool jointsCalibrating = false;
 
 long testSteps = 0;
-//bool isMoving = false;
 
 void setup() {
   // put your setup code here, to run once:
@@ -61,17 +60,17 @@ void setup() {
 //we need to know what is skip step, and it's undone
 void drive(String data)//control all motors
 {
+  Serial.println("driving");
   if(data.startsWith("drive")){ 
 
     ind1 = data.indexOf(',');
-    ind2 = data.indexOf(',', ind1+1);
-    J2newSteps = data.substring(ind1+1, ind2).toFloat();
+    J2newSteps = data.substring(ind1+1).toFloat();
 
     data = ""; //data turns into empty string
     driveToAngle = true;
   }
 
-
+  if(data.startsWith("stop")) driveToAngle = false;
   if(driveToAngle == true){
     if(J2newSteps < J2prevSteps){
       J2dir = 0; //counterclockwise
@@ -81,11 +80,48 @@ void drive(String data)//control all motors
       J2dir = 1; //clockwise
       J2stepsToGo = J2prevSteps - J2newSteps;
     }
+
+    float highestStep = J2stepsToGo;
+    if(J2stepsToGo > highestStep) highestStep = J2stepsToGo;
+
+    float resolutionMultiplier = 10;
+
+    float J2stepSkipF = highestStep / J2stepsToGo * resolutionMultiplier;
+
+    int J2stepSkip = (int)J2stepSkipF;
+
+    digitalWrite(J2dirPin, J2dir);
+
+    if(highestStep == 0) highestStepInt = 0;
+    else highestStepInt = (long)highestStep * resolutionMultiplier;
+
+    while(commonCurrentStep < highestStepInt){
+      if(commonCurrentStep%J2stepSkip==0)
+      {
+        if(J2currentSteps < J2stepsToGo)
+        {
+          digitalWrite(J2stepPin,HIGH);
+          delayMicroseconds(2);
+          digitalWrite(J2stepPin, LOW);
+          J2currentSteps++;
+        }
+        delayMicroseconds(10);
+        commonCurrentStep++;
+    }
+
+    J2stepsToGo = 0;
+    J2currentSteps = 0;
+    J2prevSteps = J2newSteps;
+
+    driveToAngle = false;
   }
+}
+
 }
 
 void jogging(String data) //contorl simple motor
 {
+  Serial.println("jogging");
   if(data.startsWith("jogJ2-")){
     J2jogging = true;
     J2dir = 0; //LOW -> counterclockwise
@@ -120,6 +156,7 @@ void jogging(String data) //contorl simple motor
   }
 }
 
+
 void loop() {
   // put your main code here, to run repeatedly:
   String readString;
@@ -133,13 +170,13 @@ void loop() {
       if(isControl(c)) break;
 
       readString += c;
-      //isMoving == true;  //maybe it's trush
     }
   }
   data = readString;
-
+  
   drive(data);
   jogging(data);
+  
 
   Serial.println(J2prevSteps);
 }
