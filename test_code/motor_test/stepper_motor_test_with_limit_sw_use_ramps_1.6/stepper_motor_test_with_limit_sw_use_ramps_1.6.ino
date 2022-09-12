@@ -61,7 +61,7 @@ why INPUT_PULLUP : https://blog.csdn.net/xiaoxiaoxiaoali/article/details/1043387
 #define J6dirPin 48
 #define J6_ENABLE_PIN 62
 
-#define stepPerRevolution 2000
+#define stepPerRevolution 200
 void setup() {
   // put your setup code here, to run once:
   pinMode(J1stepPin, OUTPUT);
@@ -135,8 +135,8 @@ void step_fun_with_limit_switch(const int step_, const int dir, int direction_, 
 
 void loop() {
   // put your main code here, to run repeatedly:
-  step_fun(J3stepPin, J3dirPin, 1);
-  step_fun(J4stepPin, J4dirPin, 1);
+  step_fun(J2stepPin, J3dirPin, 1);
+  step_fun(J3stepPin, J4dirPin, 1);
 
   while(1) step_fun_with_limit_switch(J2stepPin, J2dirPin, 1, J2limitSwitch);
 }
