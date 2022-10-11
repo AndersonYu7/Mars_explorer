@@ -8,8 +8,14 @@
 #define J3_ENABLE_PIN 56
 //#define J3limitSwitch 39
 
+#define J6stepPin 46  //Z
+#define J6dirPin 48
+#define J6_ENABLE_PIN 62
+
 int ind1;
 int ind2;
+int ind3;
+int ind4;
 
 float J2newSteps = 0;
 float J2prevSteps = 0;
@@ -40,6 +46,21 @@ bool J3isCalibrated;
 int J3driveSpeed = 500;
 bool J3jogging;
 int J3calibration = 0;
+
+float J6newSteps = 0;
+float J6prevSteps = 0;
+float J6stepsToGo = 0;
+int J6currentSteps = 0;
+int J6dir;
+int J6minSteps = -1500;       //80000 täyteen kierrokseen
+int J6maxSteps = 10000;
+int J6calibrationSpeed = 1000;
+int J6calibrationReturnSpeed = 500;
+int J6calibrationReturn = 2300;
+bool J6isCalibrated;
+int J6driveSpeed = 250;
+bool J6jogging;
+int J6calibration = 0;
 
 bool driveProgram = false;
 
@@ -78,6 +99,12 @@ void setup() {
   digitalWrite(J3dirPin, HIGH);
   digitalWrite(J3_ENABLE_PIN, LOW);
 
+  pinMode(J6stepPin, OUTPUT);
+  pinMode(J6dirPin, OUTPUT);
+  pinMode(J6_ENABLE_PIN, OUTPUT);
+  digitalWrite(J3dirPin, HIGH);
+  digitalWrite(J6_ENABLE_PIN, LOW);
+
   J2isCalibrated = false;
   J2jogging = false;
 
@@ -95,7 +122,9 @@ void drive(String data)//control all motors simultaneously, and start and end at
     ind1 = data.indexOf(',');
     ind2 = data.indexOf(',', ind1+1);
     J2newSteps = data.substring(ind1+1, ind2).toFloat();
-    J3newSteps = data.substring(ind2+1).toFloat();
+    ind3 = data.indexOf(',', ind2+1);
+    J3newSteps = data.substring(ind2+1, ind3).toFloat();
+    J6newSteps = data.substring(ind3+1).toFloat();
 
     Serial.print("J2new:");
     Serial.println(J2newSteps);
@@ -124,23 +153,38 @@ void drive(String data)//control all motors simultaneously, and start and end at
       J3dir = 1;
       J3stepsToGo = J3newSteps - J3prevSteps;
     }
+
+    if (J6newSteps < J6prevSteps){
+      J6dir = 0;
+      J6stepsToGo = J6prevSteps - J6newSteps;
+    }
+    if (J6newSteps >= J6prevSteps){
+      J6dir = 1;
+      J6stepsToGo = J6newSteps - J6prevSteps;
+    }
     
     float highestStep = J2stepsToGo;      
     if(J3stepsToGo > highestStep){
       highestStep = J3stepsToGo;
     }
+    if(J6stepsToGo > highestStep){
+      highestStep = J6stepsToGo;
+    }
 
-    float resolutionMultiplier = 4; //maybe motor number * 2
+    float resolutionMultiplier = 6; //maybe motor number * 2
 
                                                                                 //Finding the numbers of steps that each stepper has to skip in order for the moves to be started and stopped simultaneously
     float J2stepSkipF = highestStep / J2stepsToGo * resolutionMultiplier;       //for example stepper 1 is taking a step every J1stepSkip step. IE if J1stepSkip is 4, then stepper 1 takes a step every fourth program loop
     float J3stepSkipF = highestStep / J3stepsToGo * resolutionMultiplier;
+    float J6stepSkipF = highestStep / J6stepsToGo * resolutionMultiplier;
 
     int J2stepSkip = (int)J2stepSkipF;
     int J3stepSkip = (int)J3stepSkipF;
+    int J6stepSkip = (int)J6stepSkipF;
 
     digitalWrite(J2dirPin, J2dir);
     digitalWrite(J3dirPin, J3dir);
+    digitalWrite(J6dirPin, J6dir);
 
     Serial.print("highestStep:");
     Serial.println(highestStep);
@@ -148,8 +192,8 @@ void drive(String data)//control all motors simultaneously, and start and end at
       highestStepInt = 0;
     }
     else highestStepInt = (long)highestStep * resolutionMultiplier;
-  
-    while(commonCurrentStep < highestStepInt){
+
+ while(commonCurrentStep < highestStepInt){
       Serial.println(commonCurrentStep);
       if(commonCurrentStep%J2stepSkip==0){
         if(J2currentSteps < J2stepsToGo){
@@ -168,9 +212,22 @@ void drive(String data)//control all motors simultaneously, and start and end at
           J3currentSteps++;
         }
       }
+      if(commonCurrentStep%J6stepSkip==0)
+      {
+        if(J6currentSteps < J6stepsToGo)
+        {
+          digitalWrite(J6stepPin,HIGH);
+          delayMicroseconds(2);
+          digitalWrite(J6stepPin, LOW);
+          J6currentSteps++;
+        }
+      }
+      
       delayMicroseconds(10);
       commonCurrentStep++;
     }
+
+    
     
     J2stepsToGo = 0;
     J2currentSteps = 0;
@@ -178,6 +235,9 @@ void drive(String data)//control all motors simultaneously, and start and end at
     J3stepsToGo = 0;
     J3currentSteps = 0;
     J3prevSteps = J3newSteps;
+    J6stepsToGo = 0;
+    J6currentSteps = 0;
+    J6prevSteps = J3newSteps;
     commonCurrentStep = 0;
     highestStepInt = 0;
 
