@@ -14,6 +14,7 @@
   copies or substantial portions of the Software.
 *********/
 
+#include "ESP32Servo.h"
 #include "esp_camera.h"
 #include <WiFi.h>
 #include "esp_timer.h"
@@ -24,18 +25,11 @@
 #include "soc/rtc_cntl_reg.h"  //disable brownout problems
 #include "esp_http_server.h"
 
-int pos = 0;
-int dir = 1;
-
-#include <ESP32Servo.h>
-
-Servo myservo;
-
-
+Servo meow;
 
 //Replace with your network credentials
-const char* ssid = "190-2";
-const char* password = "0921971492";
+const char* ssid = "password_00000000";
+const char* password = "00000000";
 
 #define PART_BOUNDARY "123456789000000000000987654321"
 
@@ -132,6 +126,9 @@ static const char* _STREAM_PART = "Content-Type: image/jpeg\r\nContent-Length: %
 
 httpd_handle_t stream_httpd = NULL;
 
+static int pos = 0;
+static int dir = 0;
+
 static esp_err_t stream_handler(httpd_req_t *req){
   camera_fb_t * fb = NULL;
   esp_err_t res = ESP_OK;
@@ -145,7 +142,6 @@ static esp_err_t stream_handler(httpd_req_t *req){
   }
 
   while(true){
-    Serial.println("in while true");
     fb = esp_camera_fb_get();
     if (!fb) {
       Serial.println("Camera capture failed");
@@ -188,22 +184,6 @@ static esp_err_t stream_handler(httpd_req_t *req){
       break;
     }
     
-      if(pos >= 180){
-        dir = 0;
-      }
-      if(pos <= 0){
-        dir = 1;
-      }
-      if(dir == 1){
-        pos++;
-      }else{
-        pos--;   
-      }
-      myservo.write(pos);
-      delay(20);
-      Serial.println(pos);
-
-    
     //Serial.printf("MJPG: %uB\n",(uint32_t)(_jpg_buf_len));
   }
   return res;
@@ -221,18 +201,33 @@ void startCameraServer(){
   };
   
   //Serial.printf("Starting web server on port: '%d'\n", config.server_port);
-  Serial.println("startCameraServer");
   if (httpd_start(&stream_httpd, &config) == ESP_OK) {
     httpd_register_uri_handler(stream_httpd, &index_uri);
   }
 }
 
+void servo()
+{
+      if(dir == 0){
+      meow.write(pos++);
+      if(pos == 180) dir = 1;
+    }
+
+   else{
+      meow.write(pos--);
+      if(pos == 0) dir = 0;
+   }
+   Serial.println(pos++);
+}
+
 void setup() {
+  meow.attach(12);
+  
   WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0); //disable brownout detector
-  myservo.attach(12);
+ 
   Serial.begin(115200);
   Serial.setDebugOutput(false);
-  Serial.println("in setup");
+  
   camera_config_t config;
   config.ledc_channel = LEDC_CHANNEL_0;
   config.ledc_timer = LEDC_TIMER_0;
@@ -283,7 +278,9 @@ void setup() {
   Serial.print("Camera Stream Ready! Go to: http://");
   Serial.print(WiFi.localIP());
   
+  // Start streaming web server
   startCameraServer();
+  servo();
 }
 
 void loop() {
