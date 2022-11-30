@@ -12,6 +12,7 @@ typedef struct simple_fire_sensor
 }fire;
 
 ul front_ultra{.trig = 24, .echo = 25};
+
 ul left_ultra{.trig = 26, .echo = 27};
 ul right_ultra{.trig = 28, .echo = 29};
 

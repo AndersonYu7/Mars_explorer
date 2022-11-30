@@ -14,7 +14,7 @@ esp32 -> usb:
 
 step 1 : circuit wiring
 step 2 : select the board and the port (AI THINKER ESP32-CAM)
-step 3 : select the camera model
+step 3 : select the camera modelkkkkkk
 step 4 : enter the wifi the SSID and the password
 step 5 : upload the code
 step 6 : remove the gnd -> IO0 wiring
