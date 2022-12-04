@@ -38,7 +38,6 @@ def drawBox(image, classes, confs, boxes):
     center_x = 0
     center_y = 0
     for (classid, conf, box) in zip(classes, confs, boxes):
-        print(classid)
         x, y, w, h = box
         cv2.rectangle(image1, (x, y), (x + w, y + h), (180, 0, 0), 3)
         center_x = int(x+w/2)
@@ -48,6 +47,16 @@ def drawBox(image, classes, confs, boxes):
             break
     return image1, center_x, center_y
  
+def write_read(x, y):
+    sum = str(x) + ','+ str(y) + '\r'
+    arduino.write(sum.encode())    #b'x' 如果要控制arduino 必須使用utf-8, 
+    time.sleep(0.5)                    #訊息必須是位元組類型
+    data = arduino.readline()
+    data_ = data.decode()
+    return data_
+
+
+
 url='http://192.168.50.44/cam-mid.jpg'
 im=None
  
@@ -60,18 +69,15 @@ def run1():
         
         classes, confs, boxes = nnProcess(image, model_YOLOV4)
         final_image, center_x, center_y = drawBox(image, classes, confs, boxes)
+
+        cv2.rectangle(final_image, (0, 0), (800, 600), (180, 0, 0), 3) #800*600
+        cv2.circle(final_image,(400,300), 3, (0, 255, 255), 3)
+
         cv2.imshow('test', final_image)
+
         if(center_x):
-            cv2.destroyAllWindows() 
-            cv2.rectangle(final_image, (1, 1), (638, 478), (180, 0, 0), 3) #640 * 480
-            cv2.circle(final_image,(320,240), 3, (0, 255, 255), 3)
-            cv2.imshow('ts', final_image)
-            cv2.waitKey(3000)#3s
-            print(center_x, center_y)
             value = write_read(center_x, center_y)
-            value = value.decode()
-            data = value.split(',')
-            return data
+            print(value)
 
         key=cv2.waitKey(5)  #5ms
         if key==ord('q'):
@@ -79,18 +85,10 @@ def run1():
 
     cv2.destroyAllWindows()  
  
-def write_read(x, y):
-    sum = str(x) + ','+ str(y) + '\r'
-    arduino.write(sum.encode())    #b'x' 如果要控制arduino 必須使用utf-8, 
-    time.sleep(0.05)                    #訊息必須是位元組類型
-    data = arduino.readline()
-    print(data)
-    return data
+
 
 if __name__ == '__main__':
     print("started")
-    data = run1()
-    print(int(data[0]))
-    print(int(data[1]))
+    run1()
     
     

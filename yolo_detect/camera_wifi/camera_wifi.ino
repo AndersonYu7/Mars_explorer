@@ -2,6 +2,8 @@
 #include <WiFi.h>
 #include <esp32cam.h>
  
+//const char* WIFI_SSID = "AAA";
+//const char* WIFI_PASS = "00000000";
 const char* WIFI_SSID = "2N2F(1)-2.4G";
 const char* WIFI_PASS = "30000003";
  
